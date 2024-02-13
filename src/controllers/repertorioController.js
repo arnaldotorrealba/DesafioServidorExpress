@@ -12,58 +12,73 @@ const getRepertorio = async () => {
 // GET
 
 const getAllRepertorio = async (req, res) => {
-  const repertorio = await getRepertorio()
-  res.json(repertorio)
+  try {
+    const repertorio = await getRepertorio()
+    res.status(200).json(repertorio)
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el repertorio' })
+    console.error('Error al procesar la solicitud:', error)
+  }
 }
 
 // POST
 
 const addSong = async (req, res) => {
-  const { cancion, artista, tono } = req.body
-  const newSong = {
-    id: nanoid(),
-    cancion,
-    artista,
-    tono
+  try {
+    const { cancion, artista, tono } = req.body
+    const newSong = {
+      id: nanoid(),
+      cancion,
+      artista,
+      tono
+    }
+    let repertorio = await getRepertorio()
+    repertorio.push(newSong)
+    await writeFile('repertorio.json', JSON.stringify(repertorio))
+    res.status(201).json(repertorio)
+  } catch (error) {
+    res.status(500).json({ error: 'Error al añadir canción' })
+    console.error('Error al procesar la solicitud:', error)
   }
-  let repertorio = await getRepertorio()
-  repertorio.push(newSong)
-  await writeFile('repertorio.json', JSON.stringify(repertorio))
-  res.status(201).json(repertorio)
 }
 
 // PUT
 
 const editSong = async (req, res) => {
-  const { cancion, artista, tono } = req.body
-  const { id } = req.params
-  let repertorio = await getRepertorio()
-  const song = repertorio.find(song => song.id === id)
-  if (!song) {
-    res.status(404).json({ message: 'Song Not found' })
-  }
-  repertorio = repertorio.map(song => {
-    if (song.id === id) {
-      return { id: song.id, cancion, artista, tono }
+  try {
+    const { cancion, artista, tono } = req.body
+    const { id } = req.params
+    let repertorio = await getRepertorio()
+    const song = repertorio.findIndex(song => song.id === id)
+    if (!song) {
+      res.status(404).json({ message: 'Song Not found' })
     }
-    return song
-  })
-  await writeFile('repertorio.json', JSON.stringify(repertorio))
-  res.json(repertorio)
+    repertorio[song] = { id, cancion, artista, tono }
+    await writeFile('repertorio.json', JSON.stringify(repertorio))
+    res.status(200).json(repertorio)
+  } catch (error) {
+    res.status(500).json({ error: 'Error al editar canción' })
+    console.error('Error al procesar la solicitud:', error)
+  }
 }
 
 // DELETE
 
 const deleteSong = async (req, res) => {
-  const { id } = req.params
-  let repertorio = await getRepertorio()
-  const song = repertorio.find(song => song.id === id)
-  if (!song) {
-    res.status(404).json({ message: 'Song not found' })
+  try {
+    const { id } = req.params
+    let repertorio = await getRepertorio()
+    const song = repertorio.find(song => song.id === id)
+    if (!song) {
+      res.status(404).json({ message: 'Song not found' })
+    }
+    repertorio = repertorio.filter(song => song.id !== id)
+    await writeFile('repertorio.json', JSON.stringify(repertorio))
+    res.status(200).json(repertorio)
+  } catch (error) {
+    res.status(500).json({ error: 'Error al editar canción' })
+    console.error('Error al procesar la solicitud:', error)
   }
-  repertorio = repertorio.filter(song => song.id !== id)
-  await writeFile('repertorio.json', JSON.stringify(repertorio))
-  res.json(repertorio)
 }
 
 export { getAllRepertorio, addSong, editSong, deleteSong }
