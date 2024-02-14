@@ -5,16 +5,16 @@ import { writeFile, readFile } from 'node:fs/promises'
 
 const getRepertorio = async () => {
   const fsResponse = await readFile('repertorio.json', 'utf8')
-  const repertorio = JSON.parse(fsResponse)
-  return repertorio
+  const repertory = JSON.parse(fsResponse)
+  return repertory
 }
 
 // GET
 
-const getAllRepertorio = async (req, res) => {
+const getAllRepertory = async (req, res) => {
   try {
-    const repertorio = await getRepertorio()
-    res.status(200).json(repertorio)
+    const repertory = await getRepertorio()
+    res.status(200).json(repertory)
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener el repertorio' })
     console.error('Error al procesar la solicitud:', error)
@@ -37,10 +37,10 @@ const addSong = async (req, res) => {
       artista,
       tono
     }
-    let repertorio = await getRepertorio()
-    repertorio.push(newSong)
-    await writeFile('repertorio.json', JSON.stringify(repertorio))
-    res.status(201).json(repertorio)
+    let repertory = await getRepertorio()
+    repertory.push(newSong)
+    await writeFile('repertorio.json', JSON.stringify(repertory))
+    res.status(201).json(repertory)
   } catch (error) {
     res.status(500).json({ error: 'Error al añadir canción' })
     console.error('Error al procesar la solicitud:', error)
@@ -58,14 +58,14 @@ const editSong = async (req, res) => {
         .json({ error: 'Los campos no pueden estar vacíos' })
     }
     const { id } = req.params
-    let repertorio = await getRepertorio()
-    const songIndex = repertorio.findIndex(song => song.id === id)
+    let repertory = await getRepertorio()
+    const songIndex = repertory.findIndex(song => song.id === id)
     if (songIndex === -1) {
       return res.status(404).json({ message: 'Canción no encontrada' })
     }
-    repertorio[songIndex] = { id, cancion, artista, tono }
-    await writeFile('repertorio.json', JSON.stringify(repertorio))
-    res.status(200).json(repertorio)
+    repertory[songIndex] = { id, cancion, artista, tono }
+    await writeFile('repertorio.json', JSON.stringify(repertory))
+    res.status(200).json(repertory)
   } catch (error) {
     res.status(500).json({ error: 'Error al editar canción' })
     console.error('Error al procesar la solicitud:', error)
@@ -77,18 +77,18 @@ const editSong = async (req, res) => {
 const deleteSong = async (req, res) => {
   try {
     const { id } = req.params
-    let repertorio = await getRepertorio()
-    const songIndex = repertorio.find(song => song.id === id)
+    let repertory = await getRepertorio()
+    const songIndex = repertory.find(song => song.id === id)
     if (songIndex === -1) {
       return res.status(404).json({ message: 'Canción no encontrada' })
     }
-    repertorio = repertorio.filter(song => song.id !== id)
-    await writeFile('repertorio.json', JSON.stringify(repertorio))
-    res.status(200).json(repertorio)
+    repertory = repertory.filter(song => song.id !== id)
+    await writeFile('repertorio.json', JSON.stringify(repertory))
+    res.status(200).json(repertory)
   } catch (error) {
     res.status(500).json({ error: 'Error al editar canción' })
     console.error('Error al procesar la solicitud:', error)
   }
 }
 
-export { getAllRepertorio, addSong, editSong, deleteSong }
+export { getAllRepertory, addSong, editSong, deleteSong }

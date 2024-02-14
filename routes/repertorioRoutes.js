@@ -1,6 +1,6 @@
 import express from 'express'
 import {
-  getAllRepertorio,
+  getAllRepertory,
   addSong,
   editSong,
   deleteSong
@@ -8,7 +8,7 @@ import {
 
 const router = express.Router()
 
-router.get('/repertorio', getAllRepertorio)
+router.get('/repertorio', getAllRepertory)
 router.post('/repertorio', addSong)
 router.put('/repertorio/:id', editSong)
 router.delete('/repertorio/:id', deleteSong)
