@@ -26,6 +26,11 @@ const getAllRepertorio = async (req, res) => {
 const addSong = async (req, res) => {
   try {
     const { cancion, artista, tono } = req.body
+    if (!cancion.trim() || !artista.trim() || !tono.trim()) {
+      return res
+        .status(400)
+        .json({ error: 'Los campos no pueden estar vacíos' })
+    }
     const newSong = {
       id: nanoid(),
       cancion,
@@ -47,13 +52,18 @@ const addSong = async (req, res) => {
 const editSong = async (req, res) => {
   try {
     const { cancion, artista, tono } = req.body
+    if (!cancion.trim() || !artista.trim() || !tono.trim()) {
+      return res
+        .status(400)
+        .json({ error: 'Los campos no pueden estar vacíos' })
+    }
     const { id } = req.params
     let repertorio = await getRepertorio()
-    const song = repertorio.findIndex(song => song.id === id)
-    if (!song) {
-      res.status(404).json({ message: 'Song Not found' })
+    const songIndex = repertorio.findIndex(song => song.id === id)
+    if (songIndex === -1) {
+      return res.status(404).json({ message: 'Canción no encontrada' })
     }
-    repertorio[song] = { id, cancion, artista, tono }
+    repertorio[songIndex] = { id, cancion, artista, tono }
     await writeFile('repertorio.json', JSON.stringify(repertorio))
     res.status(200).json(repertorio)
   } catch (error) {
@@ -68,9 +78,9 @@ const deleteSong = async (req, res) => {
   try {
     const { id } = req.params
     let repertorio = await getRepertorio()
-    const song = repertorio.find(song => song.id === id)
-    if (!song) {
-      res.status(404).json({ message: 'Song not found' })
+    const songIndex = repertorio.find(song => song.id === id)
+    if (songIndex === -1) {
+      return res.status(404).json({ message: 'Canción no encontrada' })
     }
     repertorio = repertorio.filter(song => song.id !== id)
     await writeFile('repertorio.json', JSON.stringify(repertorio))
